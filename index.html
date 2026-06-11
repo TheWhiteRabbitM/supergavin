@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>SUPER GAVIN — Neon City 1-1</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🕹️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;padding:0}
+  html,body{margin:0;padding:0;overflow:hidden;-webkit-tap-highlight-color:transparent}
   body{
     min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
     background:radial-gradient(ellipse at center,#0d0521 0%,#020108 80%);
@@ -19,10 +19,56 @@
     border-radius:10px;border:1px solid #1d2a4a;
     box-shadow:0 0 30px rgba(0,240,255,.30),0 0 90px rgba(255,43,214,.16);
   }
+  /* ---- mobile / touch ---- */
+  body.touch{justify-content:flex-start;padding-top:max(env(safe-area-inset-top),6px)}
+  body.touch canvas{width:min(98vw,calc(60vh * 960 / 560))}
+  #touch{position:fixed;inset:0;display:none;pointer-events:none;z-index:20}
+  body.touch.playing #touch{display:block}
+  .tbtn{
+    position:fixed;bottom:max(env(safe-area-inset-bottom),20px);
+    width:66px;height:66px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    pointer-events:auto;user-select:none;-webkit-user-select:none;touch-action:none;
+    font-family:inherit;font-size:22px;line-height:1;color:#bff;
+    background:rgba(18,26,52,.5);border:2px solid rgba(0,240,255,.45);
+    box-shadow:0 0 14px rgba(0,240,255,.22);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  }
+  .tbtn.on{background:rgba(0,240,255,.32);border-color:#00f0ff;color:#fff}
+  #tleft{left:18px}
+  #tright{left:96px}
+  #tfire{right:18px;color:#ff8be0;border-color:rgba(230,0,122,.55);box-shadow:0 0 14px rgba(230,0,122,.25)}
+  #tfire.on{background:rgba(230,0,122,.32);border-color:#e6007a;color:#fff}
+  #tjump{right:96px;width:78px;height:78px;font-size:26px}
+  /* ---- "rotate your device" hint (touch + portrait only) ---- */
+  #rotate{
+    position:fixed;inset:0;z-index:30;display:none;
+    flex-direction:column;align-items:center;justify-content:center;gap:20px;
+    background:radial-gradient(ellipse at center,#0d0521 0%,#020108 85%);
+    color:#bff;text-align:center;padding:24px;font-family:inherit;
+  }
+  @media (orientation:portrait){ body.touch #rotate{display:flex} }
+  #rotate p{margin:0;font-size:15px;color:#00f0ff;letter-spacing:1px}
+  #rotate small{font-size:9px;color:#8e9bd6;line-height:1.7}
+  #rotate .phone{
+    width:46px;height:78px;border:3px solid #00f0ff;border-radius:9px;
+    box-shadow:0 0 18px rgba(0,240,255,.4);animation:rot 1.9s ease-in-out infinite;
+  }
+  @keyframes rot{0%,38%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
 </style>
 </head>
 <body>
 <canvas id="game" width="960" height="560"></canvas>
+<div id="touch" aria-hidden="true">
+  <button class="tbtn" id="tleft" aria-label="Left">◀</button>
+  <button class="tbtn" id="tright" aria-label="Right">▶</button>
+  <button class="tbtn" id="tfire" aria-label="Fire">✦</button>
+  <button class="tbtn" id="tjump" aria-label="Jump">▲</button>
+</div>
+<div id="rotate" aria-hidden="true">
+  <div class="phone"></div>
+  <p>ROTATE YOUR DEVICE</p>
+  <small>SUPER GAVIN PLAYS BEST IN LANDSCAPE</small>
+</div>
 <script>
 'use strict';
 /* ================================================================
@@ -415,12 +461,7 @@ addEventListener('keydown',e=>{
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
   keys[e.code] = true;
   audio(); // unlock audio on first input
-  if(e.code==='Enter'){
-    if(state==='title') startGame();
-    else if(state==='clear') nextLevel();
-    else if(state==='over') retryLevel();
-    else if(state==='win') backToTitle();
-  }
+  if(e.code==='Enter') advance();
   if(e.code==='KeyM'){
     muted = !muted;
     if(muted) stopMusic(); else if(state==='play' && !paused) startMusic();
@@ -431,6 +472,64 @@ addEventListener('keydown',e=>{
   }
 });
 addEventListener('keyup',e=>keys[e.code]=false);
+
+// advance between non-play screens (shared by Enter key and screen taps)
+function advance(){
+  if(state==='title') startGame();
+  else if(state==='clear') nextLevel();
+  else if(state==='over') retryLevel();
+  else if(state==='win') backToTitle();
+}
+
+/* ---- touch controls (phones / tablets) ---- */
+const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints>0;
+if(isTouch) document.body.classList.add('touch');
+function bindHold(id, code){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const press = e=>{ if(e&&e.cancelable) e.preventDefault(); keys[code]=true; el.classList.add('on'); audio(); };
+  const release = e=>{ if(e&&e.cancelable) e.preventDefault(); keys[code]=false; el.classList.remove('on'); };
+  el.addEventListener('touchstart', press, {passive:false});
+  el.addEventListener('touchend', release, {passive:false});
+  el.addEventListener('touchcancel', release, {passive:false});
+  el.addEventListener('contextmenu', e=>e.preventDefault());
+  el.addEventListener('mousedown', press);
+  el.addEventListener('mouseup', release);
+  el.addEventListener('mouseleave', e=>{ if(keys[code]) release(e); });
+}
+bindHold('tleft','ArrowLeft');
+bindHold('tright','ArrowRight');
+bindHold('tjump','Space');
+bindHold('tfire','KeyX');
+// tap the play area to start / advance when not actively playing
+canvas.addEventListener('touchstart', e=>{
+  audio();
+  if(state!=='play'){ if(e.cancelable) e.preventDefault(); advance(); }
+}, {passive:false});
+// show the on-screen pad only while a level is in progress
+let _uiState = null;
+function syncTouchUI(){
+  if(state===_uiState) return;
+  _uiState = state;
+  document.body.classList.toggle('playing', state==='play');
+}
+// auto-pause when a phone is rotated to portrait mid-level (the rotate
+// overlay is shown by CSS); resume on return to landscape unless the
+// player had paused manually with P.
+let rotatePaused = false;
+function checkOrientation(){
+  if(!isTouch) return;
+  const portrait = matchMedia('(orientation: portrait)').matches;
+  if(portrait){
+    if(state==='play' && !paused){ paused = true; rotatePaused = true; stopMusic(); }
+  } else if(rotatePaused){
+    rotatePaused = false;
+    if(paused){ paused = false; if(!muted && state==='play') startMusic(); }
+  }
+}
+addEventListener('resize', checkOrientation);
+addEventListener('orientationchange', checkOrientation);
+checkOrientation();
 
 /* ====================== START / RESPAWN ====================== */
 function resetPlayerPos(){
@@ -1709,6 +1808,7 @@ function loop(t){
   last = t;
   while(acc>=DT){ update(); acc-=DT; }
   render();
+  syncTouchUI();
 }
 requestAnimationFrame(loop);
 </script>

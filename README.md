@@ -21,6 +21,8 @@ python -m http.server 8000
 
 ## 🎮 Controls
 
+### ⌨️ Keyboard
+
 | Key | Action |
 |-----|--------|
 | `←` `→` or `A` `D` | Move |
@@ -29,6 +31,21 @@ python -m http.server 8000
 | `P` | Pause |
 | `M` | Music on/off |
 | `ENTER` | Start / next sector / retry |
+
+### 📱 Touch (phones & tablets)
+
+On any touch device an on-screen pad appears automatically — no setup needed.
+
+| Button | Action |
+|--------|--------|
+| ◀ ▶ (bottom-left) | Move |
+| ▲ (bottom-right, large) | Jump — **hold it for a higher jump** |
+| ✦ (bottom-right, pink) | Fire antivirus bolt (requires the ETH crystal) |
+| **Tap the screen** | Start / next sector / retry (replaces `ENTER`) |
+
+The pad shows only during play and hides on the menus. **Landscape is strongly
+recommended** — turn the phone sideways and you'll get a prompt if you don't;
+rotating back to portrait mid-level auto-pauses the game.
 
 ## 🌆 The four sectors
 
@@ -84,6 +101,9 @@ what you had when you entered it). Falling into the void is, as always, fatal.
   signs, synthwave sun, rain, and a pre-rendered CRT scanline overlay
 - Levels are data: each entry in `LEVELS` declares its pits, block layout,
   enemy roster, palette and boss HP — adding sector 1-5 is ~30 lines
+- **Mobile-ready**: a touch pad is injected on touch devices and mapped to the
+  exact same inputs as the keyboard (so physics is identical), the canvas scales
+  responsively, and a CSS-driven "rotate your device" hint nudges you to landscape
 
 ## ⚠️ Disclaimer
 
