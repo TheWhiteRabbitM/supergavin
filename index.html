@@ -14,18 +14,22 @@
     background:radial-gradient(ellipse at center,#0d0521 0%,#020108 80%);
     font-family:"Press Start 2P","Courier New",monospace;
   }
+  #stage{position:relative;line-height:0}
   canvas{
+    display:block;
     width:min(97vw,calc(97vh * 960 / 560));
     border-radius:10px;border:1px solid #1d2a4a;
     box-shadow:0 0 30px rgba(0,240,255,.30),0 0 90px rgba(255,43,214,.16);
   }
   /* ---- mobile / touch ---- */
-  body.touch{justify-content:flex-start;padding-top:max(env(safe-area-inset-top),6px)}
-  body.touch canvas{width:min(98vw,calc(60vh * 960 / 560))}
-  #touch{position:fixed;inset:0;display:none;pointer-events:none;z-index:20}
+  /* fill the whole screen; the pad floats ON TOP of the canvas */
+  body.touch canvas{width:min(100vw,calc(100vh * 960 / 560));border-radius:0;border:none}
+  /* the pad is positioned relative to #stage, so the buttons sit ON the
+     canvas image even when it is letterboxed inside a wider screen */
+  #touch{position:absolute;inset:0;display:none;pointer-events:none;z-index:20}
   body.touch.playing #touch{display:block}
   .tbtn{
-    position:fixed;bottom:max(env(safe-area-inset-bottom),20px);
+    position:absolute;bottom:max(env(safe-area-inset-bottom),18px);
     width:66px;height:66px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     pointer-events:auto;user-select:none;-webkit-user-select:none;touch-action:none;
@@ -57,12 +61,14 @@
 </style>
 </head>
 <body>
-<canvas id="game" width="960" height="560"></canvas>
-<div id="touch" aria-hidden="true">
-  <button class="tbtn" id="tleft" aria-label="Left">◀</button>
-  <button class="tbtn" id="tright" aria-label="Right">▶</button>
-  <button class="tbtn" id="tfire" aria-label="Fire">✦</button>
-  <button class="tbtn" id="tjump" aria-label="Jump">▲</button>
+<div id="stage">
+  <canvas id="game" width="960" height="560"></canvas>
+  <div id="touch" aria-hidden="true">
+    <button class="tbtn" id="tleft" aria-label="Left">◀</button>
+    <button class="tbtn" id="tright" aria-label="Right">▶</button>
+    <button class="tbtn" id="tfire" aria-label="Fire">✦</button>
+    <button class="tbtn" id="tjump" aria-label="Jump">▲</button>
+  </div>
 </div>
 <div id="rotate" aria-hidden="true">
   <div class="phone"></div>
