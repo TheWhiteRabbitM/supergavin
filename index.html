@@ -30,19 +30,23 @@
   body.touch.playing #touch{display:block}
   .tbtn{
     position:absolute;bottom:max(env(safe-area-inset-bottom),18px);
-    width:66px;height:66px;border-radius:50%;
+    width:72px;height:72px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     pointer-events:auto;user-select:none;-webkit-user-select:none;touch-action:none;
-    font-family:inherit;font-size:22px;line-height:1;color:#bff;
-    background:rgba(18,26,52,.5);border:2px solid rgba(0,240,255,.45);
-    box-shadow:0 0 14px rgba(0,240,255,.22);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+    font-family:inherit;font-size:26px;line-height:1;
+    color:#eafffb;text-shadow:0 0 7px rgba(0,240,255,.95),0 1px 2px #000;
+    background:rgba(6,10,24,.82);border:3px solid #00f0ff;
+    box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 18px rgba(0,240,255,.65);
   }
-  .tbtn.on{background:rgba(0,240,255,.32);border-color:#00f0ff;color:#fff}
+  .tbtn:active,.tbtn.on{background:rgba(0,240,255,.6);border-color:#cffcff;color:#021014;
+    text-shadow:none;box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 28px rgba(0,240,255,.95)}
   #tleft{left:18px}
-  #tright{left:96px}
-  #tfire{right:18px;color:#ff8be0;border-color:rgba(230,0,122,.55);box-shadow:0 0 14px rgba(230,0,122,.25)}
-  #tfire.on{background:rgba(230,0,122,.32);border-color:#e6007a;color:#fff}
-  #tjump{right:96px;width:78px;height:78px;font-size:26px}
+  #tright{left:102px}
+  #tfire{right:18px;color:#ffe1f4;border-color:#ff2bd6;
+    text-shadow:0 0 7px rgba(255,43,214,.95),0 1px 2px #000;
+    box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 18px rgba(255,43,214,.65)}
+  #tfire:active,#tfire.on{background:rgba(255,43,214,.6);border-color:#ffe1f4;color:#1a0011;text-shadow:none}
+  #tjump{right:102px;width:84px;height:84px;font-size:32px}
   /* ---- "rotate your device" hint (touch + portrait only) ---- */
   #rotate{
     position:fixed;inset:0;z-index:30;display:none;
