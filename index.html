@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>SUPER GAVIN — Neon City 1-1</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🕹️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -472,6 +475,7 @@ addEventListener('keydown',e=>{
   keys[e.code] = true;
   audio(); // unlock audio on first input
   if(e.code==='Enter') advance();
+  if(e.code==='KeyF') toggleFS();
   if(e.code==='KeyM'){
     muted = !muted;
     if(muted) stopMusic(); else if(state==='play' && !paused) startMusic();
@@ -514,8 +518,30 @@ bindHold('tfire','KeyX');
 // tap the play area to start / advance when not actively playing
 canvas.addEventListener('touchstart', e=>{
   audio();
-  if(state!=='play'){ if(e.cancelable) e.preventDefault(); advance(); }
+  if(state!=='play'){ if(e.cancelable) e.preventDefault(); if(isTouch) goFullscreen(); advance(); }
 }, {passive:false});
+
+/* ---- fullscreen (Fullscreen API; on touch it tries to lock landscape) ---- */
+function isFS(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function goFullscreen(){
+  if(isFS()) return;
+  const el = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitRequestFullScreen;
+  if(!req) return;
+  const lockLandscape = ()=>{
+    try{ if(screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{}); }catch(e){}
+  };
+  try{
+    const p = req.call(el);
+    if(p && p.then) p.then(lockLandscape).catch(()=>{}); else lockLandscape();
+  }catch(e){}
+}
+function exitFS(){
+  if(!isFS()) return;
+  const ex = document.exitFullscreen || document.webkitExitFullscreen;
+  if(ex){ try{ ex.call(document); }catch(e){} }
+}
+function toggleFS(){ isFS() ? exitFS() : goFullscreen(); }
 // show the on-screen pad only while a level is in progress
 let _uiState = null;
 function syncTouchUI(){
