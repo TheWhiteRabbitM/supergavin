@@ -1559,15 +1559,18 @@ function drawHUD(){
   ctx.textAlign='left';
   ctx.fillStyle='#00f0ff';
   ctx.fillText('SCORE '+String(score).padStart(6,'0'), 18, 23);
-  // DOT counter
+  // DOT counter (the icon says "DOT" well enough)
   ctx.strokeStyle='#e6007a'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.arc(268,23,7,0,7); ctx.stroke();
+  ctx.beginPath(); ctx.arc(240,23,7,0,7); ctx.stroke();
   ctx.fillStyle='#e6007a';
-  ctx.beginPath(); ctx.arc(268,23,2.5,0,7); ctx.fill();
-  ctx.fillText('×'+coinsN+' DOT', 282, 23);
+  ctx.beginPath(); ctx.arc(240,23,2.5,0,7); ctx.fill();
+  ctx.fillText('×'+coinsN, 254, 23);
+  // sector name, centred and small so it never collides with the counters
   ctx.textAlign='center';
   ctx.fillStyle='#8e9bd6';
+  ctx.font=`10px ${FONT}`;
   ctx.fillText(LEVELS[levelIdx].name, VIEW_W/2, 23);
+  ctx.font=`12px ${FONT}`;
   ctx.textAlign='right';
   ctx.fillStyle='#39ff14';
   ctx.fillText('BUGS FIXED '+bugsFixed, VIEW_W-130, 23);
